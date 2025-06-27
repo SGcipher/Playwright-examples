@@ -1,4 +1,4 @@
-# DNA Portals Automation Testing Framework
+# Playwright Automation Testing Framework
 
 > **Note:** This project is an example of a test automation framework. The website under test is not available, so the tests are illustrative and cannot be executed end-to-end. The included Azure pipeline YAML is a draft version, intended to provide an idea of the pipeline structure rather than a complete, working CI/CD setup.
 
