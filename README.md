@@ -26,6 +26,13 @@ This automation framework provides comprehensive test coverage for the DNA Porta
 - **Factors Tab**: Factor selection, grouping, and validation
 - **Subproducts Tab**: Subproduct selection and navigation
 
+## Underwriting Report Tab Flow
+
+The typical user journey for the underwriting report follows this tab sequence:
+
+**Product → Subproduct → Date Range → Factors**
+
+Each tab must be completed in order before proceeding to the next, reflecting the logical flow of the underwriting process.
 
 ## Project Structure
 
