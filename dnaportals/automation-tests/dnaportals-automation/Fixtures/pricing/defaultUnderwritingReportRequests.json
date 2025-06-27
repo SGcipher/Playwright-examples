@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "customReport": false,
+      "body": {
+        "product": "motor",
+        "subproducts": [
+          "car"
+        ],
+        "excelTemplate": "STANDARD",
+        "dateRange": {
+          "name": "Date Range",
+          "fromDate": "2022-06-01",
+          "toDate": "2024-05-31"
+        },
+        "groupingColumns": [
+          {
+            "column": {
+              "name": "Vehicles",
+              "type": "STRING"
+            }
+          }
+        ],
+        "predicates": {
+          "clazz": "PredicateGroup",
+          "type": "ALL",
+          "predicates": [
+            {
+              "clazz": "PredicateGroup",
+              "type": "ALL",
+              "predicates": []
+            }
+          ]
+        },
+        "useDefaultDates": true
+      },
+      "service": "UNDERWRITING_REPORT"
+    },
+    {
+      "customReport": true,
+      "body": {
+        "product": "motor",
+        "subproducts": [],
+        "groupingColumns": [
+          {
+            "column": {
+              "name": "Vehseatsf",
+              "type": "STRING"
+            }
+          }
+        ],
+        "useDefaultMetrics": false,
+        "metrics": [],
+        "excelTemplate": "GENERIC",
+        "dateRange": {
+          "name": "Date range",
+          "fromDate": "",
+          "toDate": ""
+        },
+        "predicates": {
+          "clazz": "PredicateGroup",
+          "type": "ALL",
+          "predicates": [
+            {
+              "clazz": "PredicateGroup",
+              "type": "ALL",
+              "predicates": []
+            }
+          ]
+        },
+        "useDefaultDates": false
+      },
+      "service": "UNDERWRITING_REPORT"
+    }
+  ]
+}
+
+//What these json files are, is essentially grabbing the request payload.
+//---So you run a report first, grab the payload, and chuck it in here.
+//----This is essentially a shortcut, so that we don't have to navigate and input values in tabs everytime (for example).
+// for e.g. when we're running a test, and we want to navigate to the  factors tab, we are inputting our values in
+//----products tab, subproducts tab, date ranges tab based on these payload requests.
