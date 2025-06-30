@@ -5,18 +5,26 @@ export class FactorsTab extends Report {
   readonly dropdownPlaceholder: Locator;
   readonly factorsButtonAdd: Locator;
   readonly factorsButtonClear: Locator;
+  readonly typeaheadDropdownListItem: Locator;
+  readonly selectedFactor: Locator;
   
   constructor (page: Page, tabName = 'factors') {
       super (page, tabName);
       this.dropdownPlaceholder = this.page.getByRole('textbox', { name: 'Choose a grouping field' });
       this.factorsButtonAdd = this.page.getByTestId('factors-btn-add');
       this.factorsButtonClear = this.page.getByTestId('factors-btn-clear');
+      this.typeaheadDropdownListItem = this.page.getByTestId('typeahead-dropdown-list-item');
+      this.selectedFactor = this.page.locator('[data-testid="selected-factor"]');
+  }
+
+  private getFactorTextLocator(factorName: string): Locator {
+    return this.page.getByText(factorName, { exact: true });
   }
 
   async deleteAllFactors() {
     const initialCount = await this.factorsButtonClear.count();
-    for (let i = 0; i < initialCount; i++) {
-      await this.factorsButtonClear.nth(0).click();
+    while (await this.factorsButtonClear.count() > 0) {
+      await this.factorsButtonClear.first().click();
     }
   }
 
@@ -34,28 +42,14 @@ export class FactorsTab extends Report {
     await expect(this.factorsButtonAdd).toBeEnabled();
   }
 
-  async verifyAddButtonIsDisabled() {
-    await expect(this.factorsButtonAdd).toBeDisabled();
-  }
-
-  async verifyClearButtonIsVisible() {
-    await expect(this.factorsButtonClear).toBeVisible();
-  }
-
-  async verifyClearButtonIsEnabled() {
-    await expect(this.factorsButtonClear).toBeEnabled();
-  }
-
-  async verifyClearButtonIsDisabled() {
-    await expect(this.factorsButtonClear).toBeDisabled();
-  }
-
   async verifyFactorIsSelected(factorName: string) {
-    await expect(this.page.getByText(factorName, { exact: true })).toBeVisible();
+    const factorLocator = this.getFactorTextLocator(factorName);
+    await expect(factorLocator).toBeVisible();
   }
 
   async verifyFactorIsNotSelected(factorName: string) {
-    await expect(this.page.getByText(factorName, { exact: true })).not.toBeVisible();
+    const factorLocator = this.getFactorTextLocator(factorName);
+    await expect(factorLocator).not.toBeVisible();
   }
 
   async verifyMultipleFactorsSelected(factorNames: string[]) {
@@ -69,16 +63,15 @@ export class FactorsTab extends Report {
   }
 
   async verifyDropdownOptionsAreVisible() {
-    await expect(this.page.getByTestId('typeahead-dropdown-list-item')).toBeVisible();
+    await expect(this.typeaheadDropdownListItem).toBeVisible();
   }
 
   async getSelectedFactors(): Promise<string[]> {
     const selectedFactors: string[] = [];
-    const factorElements = this.page.locator('[data-testid="selected-factor"]');
-    const count = await factorElements.count();
+    const count = await this.selectedFactor.count();
     
     for (let i = 0; i < count; i++) {
-      const factorText = await factorElements.nth(i).textContent();
+      const factorText = await this.selectedFactor.nth(i).textContent();
       if (factorText) {
         selectedFactors.push(factorText.trim());
       }
@@ -97,8 +90,7 @@ export class FactorsTab extends Report {
 
   async selectFactorFromDropdown(factorName: string) {
     await this.dropdownPlaceholder.fill(factorName);
-    await this.page
-      .getByTestId('typeahead-dropdown-list-item')
+    await this.typeaheadDropdownListItem
       .getByText(factorName, { exact: true })
       .click();
   }

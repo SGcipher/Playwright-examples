@@ -11,11 +11,16 @@ export class Report {
     this.spinner = this.page.getByText('Loading');
   }
 
+  private getTextLocator(text: string): Locator {
+    return this.page.getByText(text);
+  }
+
   async clickTabBtn() {
     await this.tabBtn.click();
   }
 
   async verifyErrorMessageIsDisplayed(message: string) {
-    await expect(this.page.getByText(message)).toBeVisible();
+    const errorLocator = this.getTextLocator(message);
+    await expect(errorLocator).toBeVisible();
   }
 }

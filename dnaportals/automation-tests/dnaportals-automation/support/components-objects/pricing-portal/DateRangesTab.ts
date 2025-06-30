@@ -5,11 +5,15 @@ import { DateRange } from '../../utils/helpers/types/ReportTypes';
 export class DateRangesTab extends Report {
   readonly defaultDatesToggle: Locator;
   readonly dateRangeDateField: Locator;
+  readonly fromDateInput: Locator;
+  readonly toDateInput: Locator;
 
   constructor(page: Page, tabName = 'date-range') {
     super(page, tabName);
     this.defaultDatesToggle = this.page.getByRole('checkbox');
     this.dateRangeDateField = this.page.getByTestId('date-ranges-date-range');
+    this.fromDateInput = this.dateRangeDateField.getByRole('textbox').nth(0);
+    this.toDateInput = this.dateRangeDateField.getByRole('textbox').nth(1);
   }
 
   async uncheckDefaultDateToggle() {
@@ -25,13 +29,13 @@ export class DateRangesTab extends Report {
   }
 
   async fillDateInputs(dates: DateRange) {
-    await this.dateRangeDateField.getByRole('textbox').nth(0).fill(dates.fromDate);
-    await this.dateRangeDateField.getByRole('textbox').nth(1).fill(dates.toDate);
+    await this.fromDateInput.fill(dates.fromDate);
+    await this.toDateInput.fill(dates.toDate);
   }
 
   async getDateRange(): Promise<DateRange> {
-    const fromDate = await this.dateRangeDateField.getByRole('textbox').nth(0).inputValue();
-    const toDate = await this.dateRangeDateField.getByRole('textbox').nth(1).inputValue();
+    const fromDate = await this.fromDateInput.inputValue();
+    const toDate = await this.toDateInput.inputValue();
     return { fromDate, toDate };
   }
 

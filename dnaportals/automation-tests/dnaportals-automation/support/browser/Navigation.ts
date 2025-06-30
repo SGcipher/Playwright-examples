@@ -63,7 +63,6 @@ export class Navigation {
 
   async navigateToFactorsTab(navObj: PricingReportOptions) {
     await this.factorsTab.clickTabBtn();
-    
   }
 
   async uwReportTabNavigation(reportTab: ReportTabName, navObj: PricingReportOptions) {

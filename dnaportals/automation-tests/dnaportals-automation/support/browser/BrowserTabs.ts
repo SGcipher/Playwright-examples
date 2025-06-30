@@ -1,10 +1,10 @@
-import { Page } from '@Playwright/test';
+import { Page } from '@playwright/test';
 
 export class BrowserTabs {
     readonly page: Page;
 
     constructor (page: Page) {
-        this.page = Page;
+        this.page = page;
     }
 
     async findTab(url: string) {

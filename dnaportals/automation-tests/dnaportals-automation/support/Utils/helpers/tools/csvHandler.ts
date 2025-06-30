@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import csvParser = require('csv-parser');
 import moment from 'moment';
 
@@ -18,8 +17,7 @@ export class CsvHandler {
             const content = await fs.promises.readFile(this.filePath, 'utf-8');
             return content.split('\n').map((line) => line.split(','));
         } catch (error) {
-            console.error('Error reading CSV file:', error);
-            return [];
+            throw new Error(`Failed to read CSV file: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -28,7 +26,7 @@ export class CsvHandler {
             const csvContent = data.map((row) => row.join(',')).join('\n');
             await fs.promises.writeFile(this.filePath, csvContent, 'utf-8');
         } catch (error) {
-            console.error('Error writing CSV file:', error);
+            throw new Error(`Failed to write CSV file: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -56,8 +54,11 @@ export class CsvHandler {
 
     public async readCSV(): Promise<void> {
         return new Promise((resolve, reject) => {
-            fs.createReadStream(this.filePath)
-              .pipe(csvParser())
+            const readStream = fs.createReadStream(this.filePath);
+            const parser = csvParser();
+            
+            readStream
+              .pipe(parser)
               .on('data', (row) => {
                   const keys = Object.keys(row);
                   for (const key of keys) {
@@ -71,8 +72,13 @@ export class CsvHandler {
                   resolve();
               })
               .on('error', (error) => {
-                  reject(error);
+                  reject(new Error(`Failed to parse CSV: ${error.message}`));
               });
+
+            // Ensure proper cleanup
+            readStream.on('error', (error) => {
+                reject(new Error(`Failed to read CSV file: ${error.message}`));
+            });
         });
     }
 
@@ -113,17 +119,33 @@ export class CsvHandler {
     public async writeToCSV(outputFileName: string, dataMap: Map<string, string[]>): Promise<void> {
         return new Promise((resolve, reject) => {
             const outputStream = fs.createWriteStream(`./fixtures/temp/${outputFileName}`);
-            const headers = Array.from(dataMap.keys()).join(',') + '\n';
-            outputStream.write(headers);
-            for (let i = 0; i < dataMap.values().next().value.length; i++) {
-                const rowValue = Array.from(dataMap.values()).map((arr) => arr[i]);
-                const row = rowValue.join(',') + '\n';
-                outputStream.write(row);
-            }
-            outputStream.end();
+            
+            outputStream.on('error', (error) => {
+                reject(new Error(`Failed to write CSV file: ${error.message}`));
+            });
+
             outputStream.on('finish', () => {
                 resolve();
             });
+
+            try {
+                const headers = Array.from(dataMap.keys()).join(',') + '\n';
+                outputStream.write(headers);
+                
+                const firstValue = dataMap.values().next().value;
+                if (firstValue) {
+                    for (let i = 0; i < firstValue.length; i++) {
+                        const rowValue = Array.from(dataMap.values()).map((arr) => arr[i]);
+                        const row = rowValue.join(',') + '\n';
+                        outputStream.write(row);
+                    }
+                }
+                
+                outputStream.end();
+            } catch (error) {
+                outputStream.destroy();
+                reject(new Error(`Failed to process CSV data: ${error instanceof Error ? error.message : 'Unknown error'}`));
+            }
         });
     }
 
@@ -133,8 +155,7 @@ export class CsvHandler {
 
     private getRandomNumber(): string {
         const randomNumber = Math.floor(Math.random() * 100000000);
-        const value = randomNumber.toString();
-        return value;
+        return randomNumber.toString();
     }
 
     private getFormattedDate(): string {
@@ -142,6 +163,6 @@ export class CsvHandler {
     }
 
     private getFormattedDateTime(): string {
-        return moment().format('YYYY-MM-DD hh:mm:ss')
+        return moment().format('YYYY-MM-DD hh:mm:ss');
     }
 }
